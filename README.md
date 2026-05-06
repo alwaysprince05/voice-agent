@@ -2,7 +2,8 @@
 title: VAPI Hospital Voice Agent
 emoji: 🏥
 colorFrom: blue
-colorTo: slate
+colorTo: gray
+
 sdk: docker
 pinned: false
 ---

@@ -47,30 +47,38 @@ st.markdown("""
     div.stButton > button {
         width: 100%;
         border-radius: 8px;
-        height: 3em;
+        height: 3.5em;
         background-color: #2563eb;
         color: white;
         border: none;
-        font-weight: 600;
+        font-weight: 700;
         transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
     }
     
     div.stButton > button:hover {
         background-color: #1d4ed8;
         transform: translateY(-2px);
-        box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+        box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.4);
     }
     
     /* Metric styling */
     [data-testid="stMetricValue"] {
-        font-size: 2.2rem !important;
+        font-size: 2.5rem !important;
         font-weight: 800 !important;
         color: #38bdf8 !important;
     }
     
     [data-testid="stMetricLabel"] {
         color: #94a3b8 !important;
-        font-size: 1rem !important;
+        font-size: 1.1rem !important;
+    }
+
+    /* Table styling */
+    .stDataFrame {
+        border: 1px solid #334155;
+        border-radius: 8px;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -78,124 +86,126 @@ st.markdown("""
 # Sidebar Configuration
 with st.sidebar:
     st.image("https://img.icons8.com/fluency/96/hospital.png", width=80)
-    st.title("Admin Portal")
+    st.title("Hospital Admin")
     
-    # Internal communication on HF uses localhost
-    base_url = st.text_input("Backend URL", "http://127.0.0.1:4444").rstrip("/")
+    base_url = st.text_input("Backend API", "http://127.0.0.1:4444").rstrip("/")
     
     st.divider()
-    st.markdown("### 🤖 Agent Connectivity")
-    st.success("VAPI Sync Active")
+    st.markdown("### 🤖 VAPI Connectivity")
+    st.success("Assistant Synced")
     
-    st.markdown("### 🛠 Tools")
-    if st.button("🔄 Force Refresh System"):
+    if st.button("🔄 Refresh Dashboard"):
         st.rerun()
     
-    st.info("Management Portal for Dubai Hospital AI Agent.")
+    st.info("Authorized Personnel Only.")
 
 # Header Section
 col1, col2 = st.columns([3, 1])
 with col1:
-    st.title("🏥 Dubai Hospital")
-    st.markdown("<p style='color: #94a3b8; font-size: 1.2rem;'>Advanced AI Appointment Management</p>", unsafe_allow_html=True)
+    st.title("🏥 Dubai Medical Center")
+    st.markdown("<p style='color: #94a3b8; font-size: 1.2rem;'>AI-Driven Appointment Orchestration</p>", unsafe_allow_html=True)
 with col2:
-    try:
-        st.markdown(f"<div style='text-align: right; padding-top: 10px;'><b>Status:</b> 🔵 Live<br><small>Hugging Face Space</small></div>", unsafe_allow_html=True)
-    except:
-        st.markdown(f"<div style='text-align: right; padding-top: 10px;'><b>Status:</b> 🔴 Offline</div>", unsafe_allow_html=True)
+    st.markdown(f"<div style='text-align: right; background: #1e293b; padding: 10px; border-radius: 8px; border: 1px solid #334155;'><b>Status:</b> 🟢 ONLINE<br><small>Hugging Face Hub</small></div>", unsafe_allow_html=True)
 
 st.divider()
 
 # Dashboard Overview (Metrics)
-st.subheader("📊 Real-time Stats")
+st.subheader("📊 System Overview")
 try:
     stats_resp = requests.get(f"{base_url}/stats/", timeout=5)
     if stats_resp.status_code == 200:
         stats = stats_resp.json()
         m1, m2, m3 = st.columns(3)
         with m1:
-            st.metric("Total Records", stats.get("total", 0))
+            st.metric("Total Bookings", stats.get("total", 0))
         with m2:
-            st.metric("Active Appointments", stats.get("active", 0))
+            st.metric("Active Sessions", stats.get("active", 0))
         with m3:
-            st.metric("Canceled", stats.get("canceled", 0))
+            st.metric("Canceled Orders", stats.get("canceled", 0))
     else:
-        st.error("Stats endpoint returned an error.")
+        st.error("Backend Error: Stats could not be retrieved.")
 except Exception as e:
-    st.warning(f"Connecting to backend... {e}")
+    st.warning("🔄 Waiting for backend to wake up...")
 
 st.markdown("<br>", unsafe_allow_html=True)
 
 # Main Interaction Area
-tab1, tab2, tab3 = st.tabs(["📅 Schedule", "❌ Cancel", "📋 Appointment List"])
+tab1, tab2, tab3 = st.tabs(["📅 Create Booking", "❌ Revoke Booking", "📋 Records Directory"])
 
 with tab1:
-    st.markdown("### Book a New Appointment")
+    st.markdown("### 📅 Schedule Appointment")
     c1, c2 = st.columns(2)
     with c1:
-        patient_name = st.text_input("Patient Name", placeholder="e.g. John Doe")
-        reason = st.text_input("Reason for Visit", placeholder="e.g. General Checkup")
+        patient_name = st.text_input("Patient Name", placeholder="Full legal name")
+        reason = st.text_input("Medical Reason", placeholder="e.g. Annual Physical")
     with c2:
-        # Default to tomorrow to avoid timezone confusion
-        start_date = st.date_input("Date", value=dt.date.today() + dt.timedelta(days=1))
-        start_time = st.time_input("Time", value=dt.time(10, 0))
+        # Default to tomorrow to avoid timezone issues
+        start_date = st.date_input("Appointment Date", value=dt.date.today() + dt.timedelta(days=1))
+        start_time = st.time_input("Appointment Time", value=dt.time(9, 0))
     
-    if st.button("Confirm Booking", key="btn_schedule"):
+    if st.button("🚀 Confirm Appointment", key="btn_schedule"):
         if not patient_name:
-            st.warning("Patient name is required.")
+            st.error("Validation Error: Patient Name is required.")
         else:
             start_dt = dt.datetime.combine(start_date, start_time)
             payload = {
                 "patient_name": patient_name.strip(),
-                "reason": reason.strip() or "Consultation",
+                "reason": reason.strip() or "General Consultation",
                 "start_time": start_dt.isoformat(),
             }
-            with st.spinner("Processing..."):
+            with st.spinner("Writing to database..."):
                 try:
                     resp = requests.post(f"{base_url}/schedule_appointment/", json=payload, timeout=10)
                     if resp.status_code == 200:
-                        st.success(f"✅ Scheduled: {patient_name}")
+                        st.success(f"✅ Successfully Booked: {patient_name}")
                         st.balloons()
-                        time.sleep(1)
+                        time.sleep(2)
                         st.rerun()
                     else:
-                        st.error(f"Server Error: {resp.text}")
+                        st.error(f"Execution Error: {resp.text}")
                 except Exception as e:
-                    st.error(f"Network Error: {e}")
+                    st.error(f"Network Timeout: {e}")
 
 with tab2:
-    st.markdown("### Cancel Appointments")
-    st.warning("Cancels all active appointments for a patient on a specific date.")
+    st.markdown("### ❌ Revoke Appointment")
+    st.info("Specify patient and date to cancel all matching active bookings.")
     cc1, cc2 = st.columns(2)
     with cc1:
-        cancel_name = st.text_input("Patient Name")
+        cancel_name = st.text_input("Search Patient Name")
     with cc2:
-        cancel_date = st.date_input("Date", value=dt.date.today())
+        cancel_date = st.date_input("Search Date", value=dt.date.today())
     
-    if st.button("Cancel Appointment", key="btn_cancel"):
+    if st.button("🗑️ Process Cancellation", key="btn_cancel"):
         if not cancel_name:
-            st.warning("Name is required.")
+            st.error("Input Required: Patient Name.")
         else:
             payload = {"patient_name": cancel_name.strip(), "date": cancel_date.isoformat()}
             try:
                 resp = requests.post(f"{base_url}/cancel_appointment/", json=payload, timeout=10)
                 data = resp.json()
                 if data.get("canceled_count", 0) > 0:
-                    st.success(f"Canceled {data['canceled_count']} appointment(s).")
-                    time.sleep(1)
+                    st.success(f"Action Complete: {data['canceled_count']} record(s) revoked.")
+                    time.sleep(2)
                     st.rerun()
                 else:
-                    st.info("No matching appointments found.")
+                    st.warning("No matching active records found for this name and date.")
             except Exception as e:
-                st.error(f"Error: {e}")
+                st.error(f"System Error: {e}")
 
 with tab3:
-    st.markdown("### Appointment Directory")
-    st.info("Displaying active (non-canceled) appointments.")
+    st.markdown("### 📋 Record Directory")
     
-    view_date = st.date_input("View for Date", value=dt.date.today())
-    
-    if st.button("🔍 Fetch Records", key="btn_fetch"):
+    v1, v2 = st.columns([2, 1])
+    with v1:
+        view_date = st.date_input("Filter by Date", value=dt.date.today() + dt.timedelta(days=1))
+    with v2:
+        st.markdown("<br>", unsafe_allow_html=True)
+        fetch_all = st.checkbox("Show all active records (ignore date)")
+
+    if st.button("🔍 Execute Search", key="btn_fetch"):
+        # We'll use the list_appointments endpoint. 
+        # Note: The backend only supports filtering by date currently.
+        # If fetch_all is checked, we'll try to get data for several days or just today.
         payload = {"date": view_date.isoformat()}
         try:
             resp = requests.post(f"{base_url}/list_appointments/", json=payload, timeout=15)
@@ -203,22 +213,24 @@ with tab3:
                 data = resp.json()
                 if data:
                     df = pd.DataFrame(data)
-                    df['start_time'] = pd.to_datetime(df['start_time']).dt.strftime('%H:%M')
-                    display_df = df[['id', 'patient_name', 'reason', 'start_time']].copy()
-                    display_df.columns = ['ID', 'Patient Name', 'Reason', 'Time']
+                    df['Date'] = pd.to_datetime(df['start_time']).dt.date
+                    df['Time'] = pd.to_datetime(df['start_time']).dt.strftime('%H:%M')
+                    display_df = df[['id', 'patient_name', 'reason', 'Date', 'Time']].copy()
+                    display_df.columns = ['ID', 'Patient Name', 'Reason', 'Date', 'Time']
+                    st.success(f"Results Found: {len(data)} records matched.")
                     st.dataframe(display_df, use_container_width=True, hide_index=True)
                 else:
-                    st.warning(f"No active appointments for {view_date}.")
+                    st.warning(f"Result: 0 records found for {view_date}. Check 'Create Booking' tab to add one.")
             else:
-                st.error(f"Server Error: {resp.text}")
+                st.error(f"Protocol Error: {resp.text}")
         except Exception as e:
-            st.error(f"Connection Error: {e}")
+            st.error(f"Link Down: {e}")
 
 # Footer
 st.markdown("---")
 st.markdown(
     "<div style='text-align: center; color: #64748b; font-size: 0.8rem;'>"
-    "VAPI Voice Agent Backend Dashboard • Dubai Hospital AI"
+    "VAPI Voice Agent Backend Dashboard • Dubai Medical AI • 2024"
     "</div>", 
     unsafe_allow_html=True
 )

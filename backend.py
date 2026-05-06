@@ -36,6 +36,7 @@ class ListAppointmentRequest(BaseModel):
 
 from fastapi import FastAPI, HTTPException, Depends
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 
 
 app = FastAPI()
@@ -72,7 +73,7 @@ def cancel_appointment(request: CancelAppointmentRequest, db: Session = Depends(
 
     result = db.execute(
         select(Appointment)
-        .where(Appointment.patient_name == request.patient_name)
+        .where(func.lower(Appointment.patient_name) == func.lower(request.patient_name))
         .where(Appointment.start_time >= start_dt)
         .where(Appointment.start_time < end_dt)
         .where(Appointment.canceled == False)
@@ -80,7 +81,7 @@ def cancel_appointment(request: CancelAppointmentRequest, db: Session = Depends(
 
     appointments = result.scalars().all()
     if not appointments:
-        return HTTPException(status_code=404, detail="No matching appointment for the details found in our system")
+        raise HTTPException(status_code=404, detail="No matching active appointment found for this patient on the selected date")
 
     for appointment in appointments:
         appointment.canceled = True

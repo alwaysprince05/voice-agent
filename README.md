@@ -1,3 +1,12 @@
+---
+title: VAPI Hospital Voice Agent
+emoji: 🏥
+colorFrom: blue
+colorTo: slate
+sdk: docker
+pinned: false
+---
+
 # 🏥 VAPI Voice Agent — Hospital Appointment System
 
 An AI-powered voice agent backend for managing hospital appointments, built with **FastAPI**, **SQLAlchemy**, and **Streamlit**. Designed to integrate with [VAPI](https://vapi.ai/) for conversational voice interactions, enabling patients to schedule, cancel, and list appointments via natural language.
@@ -156,8 +165,18 @@ python db_demo.py
 ---
 
 ## 🔌 VAPI Integration
+This backend is designed to serve as a tool/function provider for a **VAPI voice agent**. 
 
-This backend is designed to serve as a tool/function provider for a **VAPI voice agent**. Point your VAPI assistant's server URL to the running backend and configure the three tool functions (`schedule_appointment`, `cancel_appointment`, `list_appointments`) to enable voice-driven appointment management.
+### Local Setup
+Point your VAPI assistant's server URL to your public URL (e.g., via ngrok) and configure the functions.
+
+### Hugging Face Deployment
+When deployed to Hugging Face Spaces:
+1. The **Dashboard** is available at the main Space URL.
+2. The **API Endpoint** for VAPI is at `https://[your-space-name].hf.space/api`.
+   - Example: `https://alwaysprince05-voice-agent.hf.space/api`
+
+Configure your VAPI assistant to use this URL and define the tools (`schedule_appointment`, `cancel_appointment`, `list_appointments`).
 
 ---
 

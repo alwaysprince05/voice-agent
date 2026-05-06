@@ -117,6 +117,18 @@ def list_appointments(request: ListAppointmentRequest, db: Session = Depends(get
 
     return booked_appointments
 
+@app.get("/stats/")
+def get_stats(db: Session = Depends(get_db)):
+    from sqlalchemy import func
+    total = db.query(func.count(Appointment.id)).scalar()
+    canceled = db.query(func.count(Appointment.id)).filter(Appointment.canceled == True).scalar()
+    active = total - canceled
+    return {
+        "total": total,
+        "active": active,
+        "canceled": canceled
+    }
+
 import uvicorn
 if __name__ == "__main__":
     uvicorn.run("backend:app", host="127.0.0.1", port=4444, reload=True)

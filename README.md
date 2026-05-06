@@ -3,195 +3,105 @@ title: VAPI Hospital Voice Agent
 emoji: 🏥
 colorFrom: blue
 colorTo: gray
-
 sdk: docker
 pinned: false
 ---
 
 # 🏥 VAPI Voice Agent — Hospital Appointment System
 
-An AI-powered voice agent backend for managing hospital appointments, built with **FastAPI**, **SQLAlchemy**, and **Streamlit**. Designed to integrate with [VAPI](https://vapi.ai/) for conversational voice interactions, enabling patients to schedule, cancel, and list appointments via natural language.
+[![Live Demo](https://img.shields.io/badge/🚀-Live_Demo-blue?style=for-the-badge)](https://huggingface.co/spaces/alwaysprince05e/voice-agent)
+[![GitHub](https://img.shields.io/badge/GitHub-Repository-black?style=for-the-badge&logo=github)](https://github.com/alwaysprince05/voice-agent)
+
+An industry-grade AI-powered voice agent backend designed for automated hospital appointment management. This system integrates seamlessly with **VAPI** to provide a natural, conversational experience for patients while offering a premium management dashboard for hospital staff.
 
 ---
 
-## ✨ Features
+## 🌟 Key Features
 
-- **Schedule Appointments** — Book a new appointment with patient name, reason, and preferred time.
-- **Cancel Appointments** — Cancel all appointments for a patient on a given date.
-- **List Appointments** — View all active (non-canceled) appointments for a specific date.
-- **Streamlit Dashboard** — A simple web UI for testing the API endpoints.
-- **SQLite Database** — Lightweight, file-based persistence with zero configuration.
+- **🤖 AI Voice Integration**: Fully compatible with VAPI.ai for natural language appointment booking and cancellation.
+- **📊 Real-time Dashboard**: A premium Streamlit-based portal with live system metrics and appointment visualization.
+- **⚡ High Performance**: Built on **FastAPI** for ultra-low latency responses during voice interactions.
+- **💾 Robust Persistence**: SQLite database with SQLAlchemy ORM for reliable data management.
+- **🌐 Cloud Ready**: Pre-configured for deployment on **Hugging Face Spaces** using Docker and Nginx.
 
 ---
 
-## 🏗️ Project Structure
+## 🏗️ System Architecture
 
+```mermaid
+graph TD
+    User((Patient/User)) -->|Voice Call| VAPI[VAPI Voice Agent]
+    VAPI -->|Function Call / Webhook| API[FastAPI Backend]
+    API -->|CRUD Operations| DB[(SQLite Database)]
+    Admin((Hospital Staff)) -->|Manage| Dashboard[Streamlit Dashboard]
+    Dashboard -->|Fetch Stats/Data| API
 ```
-├── backend.py          # FastAPI server with appointment endpoints
-├── database.py         # SQLAlchemy models, engine, and session management
-├── dummy_frontend.py   # Streamlit dashboard for testing
-├── db_demo.py          # Utility script for raw SQL queries against the DB
-├── pyproject.toml      # Project metadata and dependencies
-└── README.md
-```
 
 ---
 
-## 📋 Prerequisites
+## 🚀 Live Access
 
-- **Python 3.11+**
-- [uv](https://docs.astral.sh/uv/) (recommended) or pip
+| Service | Link |
+| :--- | :--- |
+| **Management Dashboard** | [View Portal](https://huggingface.co/spaces/alwaysprince05e/voice-agent) |
+| **API Endpoint (for VAPI)** | `https://alwaysprince05e-voice-agent.hf.space/api` |
 
 ---
 
-## 🚀 Getting Started
+## 🔌 VAPI Integration Guide
 
-### 1. Clone the repository
+To connect your VAPI assistant to this backend:
 
+1.  **Server URL**: Set your VAPI Assistant's "Server URL" to:
+    `https://alwaysprince05e-voice-agent.hf.space/api`
+2.  **Define Tools**: Add the following tool functions in the VAPI dashboard:
+    -   `schedule_appointment`: Parameters: `patient_name`, `reason`, `start_time` (ISO format).
+    -   `cancel_appointment`: Parameters: `patient_name`, `date` (YYYY-MM-DD).
+    -   `list_appointments`: Parameters: `date` (YYYY-MM-DD).
+
+---
+
+## 🛠️ Technology Stack
+
+- **Backend**: Python, FastAPI, Uvicorn
+- **Database**: SQLAlchemy, SQLite
+- **Frontend**: Streamlit, Pandas
+- **Deployment**: Docker, Nginx, Hugging Face Spaces
+- **Communication**: RESTful API, JSON
+
+---
+
+## 💻 Local Development
+
+### 1. Clone the Repository
 ```bash
-git clone <repo-url>
-cd vapi-voice-agent
+git clone https://github.com/alwaysprince05/voice-agent.git
+cd voice-agent
 ```
 
-### 2. Create a virtual environment & install dependencies
-
-Using **uv** (recommended):
-
-```bash
-uv venv
-source .venv/bin/activate
-uv sync
-```
-
-Or using **pip**:
-
+### 2. Setup Environment
 ```bash
 python -m venv .venv
 source .venv/bin/activate
-pip install fastapi sqlalchemy streamlit uvicorn
+pip install -r requirements.txt
 ```
 
-### 3. Start the backend server
-
+### 3. Run Services
+**Start Backend:**
 ```bash
 python backend.py
 ```
-
-The API will be available at **http://127.0.0.1:4444**.
-
-### 4. (Optional) Launch the Streamlit dashboard
-
+**Start Dashboard:**
 ```bash
 streamlit run dummy_frontend.py
 ```
 
 ---
 
-## 📡 API Endpoints
-
-All endpoints accept JSON payloads via **POST**.
-
-### Schedule an Appointment
-
-```
-POST /schedule_appointment/
-```
-
-| Field          | Type     | Description                    |
-| -------------- | -------- | ------------------------------ |
-| `patient_name` | `string` | Name of the patient            |
-| `reason`       | `string` | Reason for the appointment     |
-| `start_time`   | `string` | ISO 8601 datetime (e.g. `2026-02-20T09:00:00`) |
-
-**Example:**
-
-```json
-{
-  "patient_name": "Hassan",
-  "reason": "Annual checkup",
-  "start_time": "2026-02-20T09:00:00"
-}
-```
-
----
-
-### Cancel Appointments
-
-```
-POST /cancel_appointment/
-```
-
-| Field          | Type     | Description                          |
-| -------------- | -------- | ------------------------------------ |
-| `patient_name` | `string` | Name of the patient                  |
-| `date`         | `string` | Date to cancel appointments for (ISO 8601, e.g. `2026-02-20`) |
-
----
-
-### List Appointments
-
-```
-POST /list_appointments/
-```
-
-| Field  | Type     | Description                        |
-| ------ | -------- | ---------------------------------- |
-| `date` | `string` | Date to list appointments for (ISO 8601, e.g. `2026-02-20`) |
-
----
-
-## 🗄️ Database
-
-The project uses **SQLite** via SQLAlchemy. The database file (`appointments_db.db`) is created automatically on first run.
-
-### Appointment Schema
-
-| Column         | Type       | Description                 |
-| -------------- | ---------- | --------------------------- |
-| `id`           | Integer    | Primary key (auto-increment)|
-| `patient_name` | String     | Patient's name              |
-| `reason`       | String     | Reason for visit (optional) |
-| `start_time`   | DateTime   | Appointment date & time     |
-| `canceled`     | Boolean    | Cancellation status         |
-| `created_at`   | DateTime   | Record creation timestamp   |
-
-### Running raw queries
-
-Use the `db_demo.py` utility to inspect the database directly:
-
-```bash
-python db_demo.py
-```
-
----
-
-## 🔌 VAPI Integration
-This backend is designed to serve as a tool/function provider for a **VAPI voice agent**. 
-
-### Local Setup
-Point your VAPI assistant's server URL to your public URL (e.g., via ngrok) and configure the functions.
-
-### Hugging Face Deployment
-When deployed to Hugging Face Spaces:
-1. The **Dashboard** is available at the main Space URL.
-2. The **API Endpoint** for VAPI is at `https://[your-space-name].hf.space/api`.
-   - Example: `https://alwaysprince05-voice-agent.hf.space/api`
-
-Configure your VAPI assistant to use this URL and define the tools (`schedule_appointment`, `cancel_appointment`, `list_appointments`).
-
----
-
-## 📦 Dependencies
-
-| Package     | Purpose                        |
-| ----------- | ------------------------------ |
-| FastAPI     | Web framework for the REST API |
-| SQLAlchemy  | ORM and database toolkit       |
-| Uvicorn     | ASGI server                    |
-| Streamlit   | Testing dashboard UI           |
-
----
-
 ## 📄 License
+This project is open-source and available under the MIT License.
 
-This project is for educational and demonstration purposes.
+---
+<div align="center">
+  Built with ❤️ for Modern Healthcare
+</div>
